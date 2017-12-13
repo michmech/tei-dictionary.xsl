@@ -15,7 +15,7 @@
             <head>
             </head>
             <body>
-                <div style="max-width: 1200px; margin: 0px auto; column-count: 2; column-gap: 40px;">
+                <div style="max-width: 600px; margin: 0px auto; x-column-count: 2; x-column-gap: 40px;">
                     <xsl:apply-templates select="/tei:TEI/tei:text/tei:body/*"/>
                 </div>
             </body>
@@ -80,7 +80,7 @@
         <span style="font-family: sans-serif;">
             <xsl:apply-templates/>
         </span>
-        <xsl:if test="following-sibling::*[name()='orth']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::node()[1][name()='orth']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
 
     <!--an <orth> that seems like a headword; overrides default <orth>-->
@@ -90,19 +90,29 @@
         <span style="font-family: sans-serif; font-weight: bold; text-shadow: 0px 0px 1px #999999;">
             <xsl:apply-templates/>
         </span>
-        <xsl:if test="following-sibling::*[name()='orth']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::*[1][name()='orth']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+    </xsl:template>
+
+    <!--defintion, etymology, note-->
+    <xsl:template match="tei:def | tei:etym | tei:note">
+        <xsl:apply-templates/>
+        <xsl:if test="following-sibling::*[1][name()='def' or name()='etym' or name()='note' or (name()='cit' and (@type='translation' or @type='trans')) or name()='quote']">
+            <xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text>
+        </xsl:if>
     </xsl:template>
 
     <!--a default <cit>-->
     <xsl:template match="tei:cit">
         <xsl:apply-templates/>
-        <xsl:if test="following-sibling::*[name()='cit']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::node()[1][name()='cit']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
 
     <!--a <cit> that looks like a translation of the headword-->
     <xsl:template match="tei:cit[(@type='translation' or @type='trans') and not (parent::tei:cit)]">
         <xsl:apply-templates/>
-        <xsl:if test="following-sibling::*[name()='cit' and (@type='translation' or @type='trans')]"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::*[1][name()='def' or name()='etym' or name()='note' or (name()='cit' and (@type='translation' or @type='trans'))  or name()='quote']">
+            <xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text>
+        </xsl:if>
     </xsl:template>
 
     <!--a <cit> that looks like an example sentence-->
@@ -118,7 +128,7 @@
         <span style="font-family: sans-serif; font-weight: bold; color: #666666;">
             <xsl:apply-templates/>
         </span>
-        <xsl:if test="following-sibling::*[name()='quote']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::*[1][name()='quote']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
 
     <!--a <quote> inside a translation of the headword-->
@@ -126,7 +136,7 @@
         <span style="font-family: sans-serif; text-shadow: 0px 0px 1px #999999;">
             <xsl:apply-templates/>
         </span>
-        <xsl:if test="following-sibling::*[name()='quote']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::*[1][name()='quote' or name()='def' or name()='note']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
 
     <!--a <quote> inside a translation of an example sentence-->
@@ -134,7 +144,7 @@
         <span style="font-family: sans-serif; font-style: italic; color: #666666;">
             <xsl:apply-templates/>
         </span>
-        <xsl:if test="following-sibling::*[name()='quote']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::*[1][name()='quote' or name()='def' or name()='note']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
 
     <!--pronunciation-->
@@ -173,20 +183,38 @@
     </xsl:template>
 
     <!--various labels-->
-    <xsl:template match="tei:lbl|tei:usg">
+    <xsl:template match="tei:lbl|tei:usg|tei:lang">
         <span style="color: #666666; font-style: italic;">
             <xsl:apply-templates/>
         </span>
     </xsl:template>
 
     <!-- a cross-reference -->
-    <xsl:template match="tei:ref | tei:xr[not(tei:ref)]">
+    <xsl:template match="tei:ref | tei:xr[not(tei:ref)] | tei:ptr">
         <span style="border-bottom: 1px dotted #006600; font-family: sans-serif;">
-            <xsl:apply-templates/>
+            <xsl:choose>
+                <xsl:when test="text()|*"><xsl:apply-templates/></xsl:when>
+                <xsl:otherwise><xsl:value-of select="@target"/></xsl:otherwise>
+            </xsl:choose>
             <xsl:text>&#160;</xsl:text> <!-- non-breaking space -->
             <span style="color: #006600; font-weight: bold;">›</span>
         </span>
-        <xsl:if test="following-sibling::*[name()='ref' or name()='xr']"><xsl:text> </xsl:text><span style="color: #cccccc">|</span><xsl:text> </xsl:text></xsl:if>
+        <xsl:if test="following-sibling::node()[1][name()='ref' or name()='xr']"><xsl:text> </xsl:text><span style="color: #cccccc">|</span><xsl:text> </xsl:text></xsl:if>
+    </xsl:template>
+    
+    <!--a <mentioned> inside an etymology: looks a bit like a headword-->
+    <xsl:template match="tei:mentioned">
+        <span style="font-family: sans-serif; text-shadow: 0px 0px 1px #999999;">
+            <xsl:apply-templates/>
+        </span>
+        <xsl:if test="following-sibling::node()[1][name()='mentioned']"><xsl:text> </xsl:text><span style="color: #999999">|</span><xsl:text> </xsl:text></xsl:if>
+    </xsl:template>
+    
+    <!--a gloss: surrounded by 69-shaped single quotes-->
+    <xsl:template match="tei:gloss">
+        <xsl:text>‘</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>’</xsl:text>
     </xsl:template>
 
 </xsl:stylesheet>

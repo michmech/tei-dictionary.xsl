@@ -1367,11 +1367,22 @@
                </cit>
             </sense>
          </entry>
+
          <entry n="2">
             <form type="lemma"><orth>madra</orth></form>
             <gramGrp><gram>m</gram></gramGrp>
             <xr><ref>madar</ref></xr>
          </entry>
+         
+         <entry>
+            <form>
+               <orth>abismo</orth>
+            </form>
+            <sense>
+               <cit type="translation"><quote>abysmal</quote></cit>
+               <etym>del <lang>gr.</lang> <mentioned>a</mentioned> priv. y <mentioned>byssos</mentioned>, <gloss>fondo</gloss></etym>
+            </sense>
+         </entry>         
 
       </body>
    </text>
